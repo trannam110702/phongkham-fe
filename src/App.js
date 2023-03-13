@@ -1,24 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import MainLayout from "./components/Layout";
+import { ConfigProvider, theme } from "antd";
 
+import ExamResquests from "./pages/ExamResquests";
+import Services from "./pages/Services";
+import Receipts from "./pages/Receipts";
+import Reports from "./pages/Reports";
+import Result500 from "./pages/Result500";
+import Infor from "./pages/Infor";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      {
+        path: "examrequests",
+        element: <ExamResquests />,
+      },
+      {
+        path: "services",
+        element: <Services />,
+      },
+      {
+        path: "receipts",
+        element: <Receipts />,
+      },
+      {
+        path: "reports/:type",
+        element: <Reports />,
+      },
+      {
+        path: "info/:type",
+        element: <Infor />,
+      },
+    ],
+    errorElement: <Result500 />,
+  },
+]);
+const customTheme = {
+  token: {},
+};
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ConfigProvider theme={customTheme}>
+      <RouterProvider router={router} />
+    </ConfigProvider>
   );
 }
 
