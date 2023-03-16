@@ -10,34 +10,28 @@ import {
   Button,
   Modal,
   Space,
-  Select,
   DatePicker,
 } from "antd";
 import { ExclamationCircleFilled, SearchOutlined } from "@ant-design/icons";
 import MedicineWrapper, { Buttons } from "./styled";
-import { getAllMedicine } from "../../api/medicine";
-import { getAllMedico } from "../../api/medico";
-import { getAllPatient } from "../../api/patient";
-import { getAllService } from "../../api/service";
-import { addExam, deleteExam, getAllExam, updateExam } from "../../api/exam";
+import {
+  getAllMedicine,
+  addMedicine,
+  deleteMedicine,
+  updateMedicine,
+} from "../../api/medicine";
 
 import { Store } from "../../store/store";
 
 const { confirm } = Modal;
 const Infor = () => {
-  const { Option } = Select;
   const { showNotification } = useContext(Store);
   const [form] = Form.useForm();
-  const [dataSourceRoot, setDataSourceRoot] = useState([]);
   const [dataSource, setDataSource] = useState([]);
-  const [medicine, setMedicine] = useState([]);
-  const [medico, setMedico] = useState([]);
-  const [patient, setPatient] = useState([]);
-  const [service, setService] = useState([]);
   const [addLoading, setAddLoading] = useState(false);
   const [tableLoading, setTableLoading] = useState(true);
   const [modal, setModal] = useState(false);
-  const [recordState, setRecordState] = useState(null);
+  const [record, setRecord] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
@@ -156,58 +150,27 @@ const Infor = () => {
     const run = async () => {
       let res, resData;
       setTableLoading(true);
-      res = await getAllMedico();
-      setMedico(res.data);
       res = await getAllMedicine();
-      setMedicine(res.data);
-      res = await getAllPatient();
-      setPatient(res.data);
-      res = await getAllService();
-      setService(res.data);
-      res = await getAllExam();
-      setDataSourceRoot(res.data);
-      setTableLoading(false);
-    };
-    run();
-  }, []);
-  useEffect(() => {
-    const run = async () => {
-      let res, resData;
-      setTableLoading(true);
-      res = await getAllExam();
       resData = res.data.map((item) => {
-        return {
-          ...item,
-          key: item._id,
-          medico: medico.find((me) => me._id === item.medico)?.name,
-          patient: patient.find((me) => me._id === item.patient)?.name,
-          service: service.find((me) => me._id === item.service)?.name,
-        };
+        return { ...item, key: item._id };
       });
       setDataSource(resData);
       setTableLoading(false);
     };
     run();
-  }, [modal, medico, medicine, patient, service]);
+  }, [modal]);
+
   const reloadTable = async () => {
-    let res, resData;
-    setTableLoading(true);
-    res = await getAllExam();
-    resData = res.data.map((item) => {
-      return {
-        ...item,
-        key: item._id,
-        medico: medico.find((me) => me._id === item.medico)?.name,
-        patient: patient.find((me) => me._id === item.patient)?.name,
-        service: service.find((me) => me._id === item.service)?.name,
-      };
+    const res = await getAllMedicine();
+    let resData = res.data.map((item) => {
+      return { ...item, key: item._id };
     });
     setDataSource(resData);
     setTableLoading(false);
   };
   const showDeleteConfirm = (rec) => {
     const onOk = async () => {
-      const res = await deleteExam(rec);
+      const res = await deleteMedicine(rec);
       showNotification({ message: res.statusText, type: "info" });
       reloadTable();
     };
@@ -233,34 +196,34 @@ const Infor = () => {
       render: (text, record, index) => <>{index + 1}</>,
     },
     {
-      title: "Nha sĩ",
-      dataIndex: "medico",
-      key: "medico",
-      ...getColumnSearchProps("medico"),
+      title: "Tên",
+      dataIndex: "name",
+      key: "name",
+      ...getColumnSearchProps("name"),
     },
     {
-      title: "Bệnh nhân",
-      dataIndex: "patient",
-      key: "patient",
-      ...getColumnSearchProps("patient"),
+      title: "Mã thuốc",
+      dataIndex: "code",
+      key: "code",
+      ...getColumnSearchProps("code"),
     },
     {
-      title: "Dịch vụ",
-      dataIndex: "service",
-      key: "service",
-      ...getColumnSearchProps("service"),
+      title: "Nguồn gốc",
+      dataIndex: "origin",
+      key: "origin",
+      ...getColumnSearchProps("origin"),
     },
     {
-      title: "Ngày tạo ",
-      dataIndex: "examDate",
-      key: "examDate",
-      ...getColumnSearchProps("examDate"),
+      title: "Hạn sử dụng",
+      dataIndex: "dueDate",
+      key: "dueDate",
+      ...getColumnSearchProps("dueDate"),
     },
     {
-      title: "Mô tả",
-      dataIndex: "description",
-      key: "description",
-      ...getColumnSearchProps("description"),
+      title: "Đơn vị",
+      dataIndex: "unit",
+      key: "unit",
+      ...getColumnSearchProps("unit"),
     },
     {
       title: "Hành động",
@@ -278,26 +241,8 @@ const Infor = () => {
           </Button>
           <Button
             onClick={() => {
-              let rec = {
-                ...record,
-                medico: dataSourceRoot.find((item) => item._id === record._id)
-                  .medico,
-                patient: dataSourceRoot.find((item) => item._id === record._id)
-                  .patient,
-                service: dataSourceRoot.find((item) => item._id === record._id)
-                  .service,
-              };
-              console.log(rec);
-              setRecordState({
-                ...record,
-                medico: dataSourceRoot.find((item) => item._id === record._id)
-                  .medico,
-                patient: dataSourceRoot.find((item) => item._id === record._id)
-                  .patient,
-                service: dataSourceRoot.find((item) => item._id === record._id)
-                  .service,
-              });
-              form.setFieldsValue({ ...rec, examDate: dayjs() });
+              form.setFieldsValue({ ...record, dueDate: dayjs() });
+              setRecord(record);
               setModal(true);
             }}
             type="primary"
@@ -315,11 +260,11 @@ const Infor = () => {
           footer={null}
           open={modal}
           width={600}
-          title={`Thông tin phiếu khám`}
+          title={`Thông tin thuốc`}
           onCancel={() => {
             setModal(false);
             form.resetFields();
-            setRecordState(null);
+            setRecord(null);
           }}
           onOk={() => {}}
         >
@@ -331,132 +276,44 @@ const Infor = () => {
               labelAlign={"left"}
             >
               <Form.Item
-                label="Nha sĩ"
-                name="medico"
-                rules={[{ required: true, message: "Cần chọn trường này" }]}
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
+                name="name"
+                label={`Tên thuốc`}
+                rules={[
+                  {
+                    required: true,
+                    message: "Cần nhập trường này",
+                  },
+                ]}
               >
-                <Select
-                  placeholder="Chọn Nha sĩ"
-                  showSearch
-                  filterOption={(input, option) => {
-                    return (option?.children.toLowerCase() ?? "").includes(
-                      input.toLowerCase()
-                    );
-                  }}
-                  filterSort={(optionA, optionB) =>
-                    (optionA?.children ?? "")
-                      .toLowerCase()
-                      .localeCompare((optionB?.children ?? "").toLowerCase())
-                  }
-                >
-                  {medico.map((me) => {
-                    return (
-                      <Option key={me._id} value={me._id}>
-                        {me?.name}
-                      </Option>
-                    );
-                  })}
-                </Select>
+                <Input />
               </Form.Item>
               <Form.Item
-                label="Bệnh nhân"
-                name="patient"
-                rules={[{ required: true, message: "Cần chọn trường này" }]}
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
+                name="code"
+                label={`Mã thuốc`}
+                rules={[
+                  {
+                    required: true,
+                    message: "Cần nhập trường này",
+                  },
+                ]}
               >
-                <Select
-                  placeholder="Chọn Bệnh nhân"
-                  showSearch
-                  filterOption={(input, option) => {
-                    return (option?.children.toLowerCase() ?? "").includes(
-                      input.toLowerCase()
-                    );
-                  }}
-                  filterSort={(optionA, optionB) =>
-                    (optionA?.children ?? "")
-                      .toLowerCase()
-                      .localeCompare((optionB?.children ?? "").toLowerCase())
-                  }
-                >
-                  {patient.map((pati) => {
-                    return (
-                      <Option key={pati._id} value={pati._id}>
-                        {pati?.name}
-                      </Option>
-                    );
-                  })}
-                </Select>
+                <Input />
               </Form.Item>
               <Form.Item
-                label="Dịch vụ khám"
-                name="service"
-                rules={[{ required: true, message: "Cần chọn trường này" }]}
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
+                name="origin"
+                label={`Nguồn gốc`}
+                rules={[
+                  {
+                    required: true,
+                    message: "Cần nhập trường này",
+                  },
+                ]}
               >
-                <Select
-                  placeholder="Chọn Dịch vụ khám"
-                  showSearch
-                  filterOption={(input, option) => {
-                    return (option?.children.toLowerCase() ?? "").includes(
-                      input.toLowerCase()
-                    );
-                  }}
-                  filterSort={(optionA, optionB) =>
-                    (optionA?.children ?? "")
-                      .toLowerCase()
-                      .localeCompare((optionB?.children ?? "").toLowerCase())
-                  }
-                >
-                  {service.map((ser) => {
-                    return (
-                      <Option key={ser._id} value={ser._id}>
-                        {ser?.name}
-                      </Option>
-                    );
-                  })}
-                </Select>
+                <Input />
               </Form.Item>
               <Form.Item
-                label="Đơn thuốc"
-                name="medicine"
-                rules={[{ required: true, message: "Cần chọn trường này" }]}
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
-              >
-                <Select
-                  placeholder="Chọn Đơn thuốc"
-                  mode="multiple"
-                  allowClear
-                  showSearch
-                  filterOption={(input, option) => {
-                    return (option?.children.toLowerCase() ?? "").includes(
-                      input.toLowerCase()
-                    );
-                  }}
-                  filterSort={(optionA, optionB) =>
-                    (optionA?.children ?? "")
-                      .toLowerCase()
-                      .localeCompare((optionB?.children ?? "").toLowerCase())
-                  }
-                >
-                  {medicine.map((me) => {
-                    return (
-                      <Option key={me._id} value={me._id}>
-                        {me?.name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              </Form.Item>
-              <Form.Item
-                name="examDate"
-                label={`Ngày khám`}
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
+                name="dueDate"
+                label={`Hạn sử dụng`}
                 rules={[
                   {
                     required: true,
@@ -472,10 +329,8 @@ const Infor = () => {
                 />
               </Form.Item>
               <Form.Item
-                name="description"
-                label="Chuẩn đoán"
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
+                name="unit"
+                label={`Đơn vị`}
                 rules={[
                   {
                     required: true,
@@ -483,13 +338,10 @@ const Infor = () => {
                   },
                 ]}
               >
-                <Input.TextArea
-                  allowClear
-                  autoSize={{ minRows: 4, maxRows: 6 }}
-                />
+                <Input />
               </Form.Item>
               <Buttons>
-                {recordState ? (
+                {record ? (
                   <Button
                     type="primary"
                     loading={addLoading}
@@ -498,13 +350,10 @@ const Infor = () => {
                       form
                         .validateFields()
                         .then((values) => {
-                          console.log(values);
-                          return updateExam({
-                            str: JSON.stringify({
-                              ...values,
-                              _id: recordState._id,
-                              examDate: values.examDate.format("DD/MM/YYYY"),
-                            }),
+                          return updateMedicine({
+                            ...values,
+                            _id: record._id,
+                            dueDate: values.dueDate.format("DD/MM/YYYY"),
                           });
                         })
                         .then((value) => {
@@ -535,11 +384,9 @@ const Infor = () => {
                       form
                         .validateFields()
                         .then((values) => {
-                          return addExam({
-                            str: JSON.stringify({
-                              ...values,
-                              examDate: values.examDate.format("DD/MM/YYYY"),
-                            }),
+                          return addMedicine({
+                            ...values,
+                            dueDate: values.dueDate.format("DD/MM/YYYY"),
                           });
                         })
                         .then((value) => {

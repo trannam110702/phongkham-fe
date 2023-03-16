@@ -43,7 +43,11 @@ const MainLayout = () => {
                     },
                     {
                       key: "info-medico",
-                      label: <Link to={"/info/medico"}>Y sĩ</Link>,
+                      label: <Link to={"/info/medico"}>Nha sĩ</Link>,
+                    },
+                    {
+                      key: "medicine",
+                      label: <Link to={"/medicine"}>Thuốc</Link>,
                     },
                   ],
                 },
@@ -54,18 +58,12 @@ const MainLayout = () => {
                   children: [
                     {
                       key: "examrequests",
-                      label: <Link to={"/examrequests"}>Phiếu yêu cầu</Link>,
+                      label: <Link to={"/examrequests"}>Phiếu khám</Link>,
                     },
                     {
                       key: "services",
                       label: <Link to={"/services"}>Gói khám</Link>,
                     },
-                  ],
-                },
-                {
-                  key: "healing-management",
-                  label: "Chữa bệnh",
-                  children: [
                     {
                       key: "receipts",
                       label: <Link to={"/receipts"}>Hóa đơn</Link>,
@@ -83,9 +81,9 @@ const MainLayout = () => {
                       ),
                     },
                     {
-                      key: "reports-healing",
+                      key: "reports-revenue",
                       label: (
-                        <Link to={"/reports/healing"}>Báo cáo chữa bệnh</Link>
+                        <Link to={"/reports/revenue"}>Báo cáo doanh thu</Link>
                       ),
                     },
                   ],
