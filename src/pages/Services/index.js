@@ -85,7 +85,6 @@ const Services = () => {
                 formatter={(value) =>
                   `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                 }
-                defaultValue={1000000}
               />
             </Form.Item>
             <Form.Item

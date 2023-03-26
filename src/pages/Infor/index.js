@@ -169,9 +169,6 @@ const Infor = () => {
     };
     run();
   }, [type, modal]);
-  useEffect(() => {
-    showNotification({ message: "Chao xìn tháng 4", type: "info" });
-  }, [type]);
   const reloadTable = async () => {
     const res =
       type === "patient" ? await getAllPatient() : await getAllMedico();

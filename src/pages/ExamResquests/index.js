@@ -12,8 +12,14 @@ import {
   Space,
   Select,
   DatePicker,
+  InputNumber,
 } from "antd";
-import { ExclamationCircleFilled, SearchOutlined } from "@ant-design/icons";
+import {
+  ExclamationCircleFilled,
+  SearchOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import MedicineWrapper, { Buttons } from "./styled";
 import { getAllMedicine } from "../../api/medicine";
 import { getAllMedico } from "../../api/medico";
@@ -154,7 +160,7 @@ const Infor = () => {
   });
   useEffect(() => {
     const run = async () => {
-      let res, resData;
+      let res;
       setTableLoading(true);
       res = await getAllMedico();
       setMedico(res.data);
@@ -314,8 +320,8 @@ const Infor = () => {
         <Modal
           footer={null}
           open={modal}
-          width={600}
-          title={`Thông tin phiếu khám`}
+          width={800}
+          title={`Phiếu khám`}
           onCancel={() => {
             setModal(false);
             form.resetFields();
@@ -354,7 +360,7 @@ const Infor = () => {
                   {medico.map((me) => {
                     return (
                       <Option key={me._id} value={me._id}>
-                        {me?.name}
+                        {`${me?.name} - ${me.cccd}`}
                       </Option>
                     );
                   })}
@@ -384,7 +390,7 @@ const Infor = () => {
                   {patient.map((pati) => {
                     return (
                       <Option key={pati._id} value={pati._id}>
-                        {pati?.name}
+                        {`${pati?.name} - ${pati.cccd}`}
                       </Option>
                     );
                   })}
@@ -414,44 +420,13 @@ const Infor = () => {
                   {service.map((ser) => {
                     return (
                       <Option key={ser._id} value={ser._id}>
-                        {ser?.name}
+                        {`${ser?.name} - ${ser.code}`}
                       </Option>
                     );
                   })}
                 </Select>
               </Form.Item>
-              <Form.Item
-                label="Đơn thuốc"
-                name="medicine"
-                rules={[{ required: true, message: "Cần chọn trường này" }]}
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
-              >
-                <Select
-                  placeholder="Chọn Đơn thuốc"
-                  mode="multiple"
-                  allowClear
-                  showSearch
-                  filterOption={(input, option) => {
-                    return (option?.children.toLowerCase() ?? "").includes(
-                      input.toLowerCase()
-                    );
-                  }}
-                  filterSort={(optionA, optionB) =>
-                    (optionA?.children ?? "")
-                      .toLowerCase()
-                      .localeCompare((optionB?.children ?? "").toLowerCase())
-                  }
-                >
-                  {medicine.map((me) => {
-                    return (
-                      <Option key={me._id} value={me._id}>
-                        {me?.name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              </Form.Item>
+
               <Form.Item
                 name="examDate"
                 label={`Ngày khám`}
@@ -488,92 +463,176 @@ const Infor = () => {
                   autoSize={{ minRows: 4, maxRows: 6 }}
                 />
               </Form.Item>
-              <Buttons>
-                {recordState ? (
-                  <Button
-                    type="primary"
-                    loading={addLoading}
-                    onClick={() => {
-                      setAddLoading(true);
-                      form
-                        .validateFields()
-                        .then((values) => {
-                          console.log(values);
-                          return updateExam({
-                            str: JSON.stringify({
-                              ...values,
-                              _id: recordState._id,
-                              examDate: values.examDate.format("DD/MM/YYYY"),
-                            }),
-                          });
-                        })
-                        .then((value) => {
-                          showNotification({
-                            message: "Thành công",
-                            type: "success",
-                          });
-                        })
-                        .catch((e) => {
-                          showNotification({
-                            message: "Thất bại",
-                            type: "error",
-                          });
-                        })
-                        .finally(() => {
-                          setAddLoading(false);
-                        });
-                    }}
-                  >
-                    Sửa
-                  </Button>
-                ) : (
-                  <Button
-                    type="primary"
-                    loading={addLoading}
-                    onClick={() => {
-                      setAddLoading(true);
-                      form
-                        .validateFields()
-                        .then((values) => {
-                          return addExam({
-                            str: JSON.stringify({
-                              ...values,
-                              examDate: values.examDate.format("DD/MM/YYYY"),
-                            }),
-                          });
-                        })
-                        .then((value) => {
-                          showNotification({
-                            message: "Thêm thành công",
-                            type: "success",
-                          });
-                        })
-                        .catch((e) => {
-                          showNotification({
-                            message: "Thất bại",
-                            type: "error",
-                          });
-                        })
-                        .finally(() => {
-                          setAddLoading(false);
-                        });
-                    }}
-                  >
-                    Thêm
-                  </Button>
+              <Form.List
+                label="Đơn thuốc"
+                name="medicine"
+                rules={[{ required: true, message: "Cần chọn trường này" }]}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+              >
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div
+                        className="medi-list"
+                        key={key}
+                        style={{
+                          display: "flex",
+                          gap: "12px",
+                          marginBottom: 6,
+                        }}
+                      >
+                        <Form.Item
+                          {...restField}
+                          name={[name, "medi"]}
+                          label="Thuốc"
+                          style={{ width: "400px", margin: "10px" }}
+                          rules={[
+                            { required: true, message: "Điền tên thuốc" },
+                          ]}
+                        >
+                          <Select
+                            placeholder="Chọn Đơn thuốc"
+                            allowClear
+                            showSearch
+                            filterOption={(input, option) => {
+                              return (
+                                option?.children.toLowerCase() ?? ""
+                              ).includes(input.toLowerCase());
+                            }}
+                            filterSort={(optionA, optionB) =>
+                              (optionA?.children ?? "")
+                                .toLowerCase()
+                                .localeCompare(
+                                  (optionB?.children ?? "").toLowerCase()
+                                )
+                            }
+                          >
+                            {medicine.map((me) => {
+                              return (
+                                <Option key={me._id} value={me._id}>
+                                  {`${me?.name} - ${me.code}`}
+                                </Option>
+                              );
+                            })}
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "num"]}
+                          style={{ width: "400px", margin: "10px" }}
+                          label="Số lượng"
+                          rules={[{ required: true, message: "Điền số lượng" }]}
+                        >
+                          <InputNumber
+                            style={{ width: "100%" }}
+                            placeholder="Điền số lượng"
+                            min={1}
+                          />
+                        </Form.Item>
+                        <MinusCircleOutlined onClick={() => remove(name)} />
+                      </div>
+                    ))}
+                    <Form.Item
+                      style={{ display: "flex", justifyContent: "center" }}
+                    >
+                      <Button
+                        style={{ width: 500, marginTop: 24 }}
+                        onClick={() => add()}
+                        block
+                        icon={<PlusOutlined />}
+                      >
+                        Thêm thuốc
+                      </Button>
+                    </Form.Item>
+                  </>
                 )}
+              </Form.List>
+            </Form>
+            <Buttons>
+              {recordState ? (
                 <Button
+                  type="primary"
+                  loading={addLoading}
                   onClick={() => {
-                    setModal(false);
+                    setAddLoading(true);
+                    form
+                      .validateFields()
+                      .then((values) => {
+                        console.log(values);
+                        return updateExam({
+                          str: JSON.stringify({
+                            ...values,
+                            _id: recordState._id,
+                            examDate: values.examDate.format("DD/MM/YYYY"),
+                          }),
+                        });
+                      })
+                      .then((value) => {
+                        showNotification({
+                          message: "Thành công",
+                          type: "success",
+                        });
+                      })
+                      .catch((e) => {
+                        showNotification({
+                          message: "Thất bại",
+                          type: "error",
+                        });
+                      })
+                      .finally(() => {
+                        setAddLoading(false);
+                      });
                   }}
                 >
-                  Hủy
+                  Sửa
                 </Button>
-              </Buttons>
-            </Form>
+              ) : (
+                <Button
+                  type="primary"
+                  loading={addLoading}
+                  onClick={() => {
+                    setAddLoading(true);
+                    form
+                      .validateFields()
+                      .then((values) => {
+                        return addExam({
+                          str: JSON.stringify({
+                            ...values,
+                            examDate: values.examDate.format("DD/MM/YYYY"),
+                          }),
+                        });
+                      })
+                      .then((value) => {
+                        showNotification({
+                          message: "Thêm thành công",
+                          type: "success",
+                        });
+                      })
+                      .catch((e) => {
+                        showNotification({
+                          message: "Thất bại",
+                          type: "error",
+                        });
+                      })
+                      .finally(() => {
+                        setAddLoading(false);
+                      });
+                  }}
+                >
+                  Thêm
+                </Button>
+              )}
+              <Button
+                onClick={() => {
+                  setModal(false);
+                }}
+              >
+                Hủy
+              </Button>
+            </Buttons>
           </Col>
         </Modal>
-
         <Col span={24}>
           <div style={{ marginBottom: 12, height: 32 }}>
             <Button

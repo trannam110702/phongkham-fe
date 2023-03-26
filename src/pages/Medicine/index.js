@@ -11,6 +11,7 @@ import {
   Modal,
   Space,
   DatePicker,
+  InputNumber,
 } from "antd";
 import { ExclamationCircleFilled, SearchOutlined } from "@ant-design/icons";
 import MedicineWrapper, { Buttons } from "./styled";
@@ -226,6 +227,15 @@ const Infor = () => {
       ...getColumnSearchProps("unit"),
     },
     {
+      title: "Đơn giá (VND)",
+      dataIndex: "price",
+      key: "price",
+      ...getColumnSearchProps("price"),
+      render: (text) => {
+        return `${text}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      },
+    },
+    {
       title: "Hành động",
       key: "action",
       render: (_, record) => (
@@ -339,6 +349,27 @@ const Infor = () => {
                 ]}
               >
                 <Input />
+              </Form.Item>
+              <Form.Item
+                name="price"
+                label={`Đơn giá`}
+                rules={[
+                  {
+                    required: true,
+                    message: "Cần nhập trường này",
+                  },
+                ]}
+              >
+                <InputNumber
+                  min={0}
+                  prefix="VND"
+                  style={{
+                    width: "100%",
+                  }}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                />
               </Form.Item>
               <Buttons>
                 {record ? (
