@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Highlighter from "react-highlight-words";
+import printJS from "print-js";
 import { Table, Input, Button, Space, Modal } from "antd";
 import {
   ExclamationCircleFilled,
@@ -257,7 +258,7 @@ const Receipts = () => {
           setModal(false);
         }}
       >
-        <div className="receipt" style={{ margin: "20px" }}>
+        <div id="receipt" style={{ margin: "20px" }}>
           <div>
             <div
               className="logo"
@@ -362,12 +363,23 @@ const Receipts = () => {
             </b>
           </div>
         </div>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            type="primary"
+            onClick={() => {
+              printJS("receipt", "html");
+            }}
+          >
+            In hóa đơn
+          </Button>
+        </div>
       </Modal>
       <Table
         columns={columns}
         dataSource={dataSource}
         pagination={false}
         loading={tableLoading}
+        ss
         onRow={(record, rowIndex) => {
           return {
             onClick: (event) => {
