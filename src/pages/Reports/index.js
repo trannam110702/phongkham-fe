@@ -131,7 +131,7 @@ const Reports = () => {
         <RadarChart outerRadius={90} width={730} height={250} data={data2}>
           <PolarGrid />
           <PolarAngleAxis dataKey="subject" />
-          <PolarRadiusAxis angle={30} domain={[0, 150]} />
+          <PolarRadiusAxis angle={30} domain={[0, 15]} />
           <Radar
             name="Lịch sử Khám Tháng 4"
             dataKey="B"
