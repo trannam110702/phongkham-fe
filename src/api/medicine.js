@@ -11,3 +11,6 @@ export const deleteMedicine = async (data) => {
 export const updateMedicine = async (data) => {
   return axiosClient.post("/medicine/update", data);
 };
+export const getMedicineById = async (id) => {
+  return axiosClient.get(`/medicine/${id}`);
+};

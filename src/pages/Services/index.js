@@ -141,7 +141,6 @@ const Services = () => {
         </Row>
         <Row className="content" gutter={[12, 12]}>
           {allService.map((pack) => {
-            console.log(pack);
             return (
               <ServiceCard
                 img={img}

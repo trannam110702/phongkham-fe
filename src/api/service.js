@@ -11,3 +11,6 @@ export const deleteService = async (data) => {
 export const updateService = async (data) => {
   return axiosClient.post("/service/update", data);
 };
+export const getServiceById = async (id) => {
+  return axiosClient.get(`/service/${id}`);
+};
