@@ -8,11 +8,12 @@ const LayoutWrapper = styled.div`
   }
   .header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     .logo {
       display: flex;
       gap: 10px;
       img {
+        padding: 10px;
       }
       h1 {
         font-size: 24px;

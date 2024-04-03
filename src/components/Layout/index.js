@@ -1,10 +1,20 @@
-import { Button, Layout, Menu, theme } from "antd";
 import React, { useState } from "react";
+import { Button, Dropdown, Layout, Menu, Space, theme } from "antd";
+import { InfoCircleOutlined, DownOutlined } from "@ant-design/icons";
 import { Link, Outlet } from "react-router-dom";
 import LayoutWrapper from "./styled";
-import { InfoCircleOutlined } from "@ant-design/icons";
-import logo from "../../assets/imgs/logo.svg";
+import logo from "../../assets/imgs/logo.png";
 const { Header, Sider, Content } = Layout;
+const items = [
+  {
+    key: "1",
+    label: "Thông tin tài khoản",
+  },
+  {
+    key: "2",
+    label: "Đăng xuất",
+  },
+];
 const MainLayout = () => {
   const {
     token: { colorBgContainer },
@@ -15,22 +25,26 @@ const MainLayout = () => {
         <Header className="header">
           <div className="logo">
             <img src={logo} alt="" />
-            <h1>VINPEC</h1>
+            <h1>Home Dental</h1>
           </div>
+          <Dropdown
+            menu={{
+              items,
+            }}
+          >
+            <a onClick={(e) => e.preventDefault()}>
+              <Space>
+                Tài khoản
+                <DownOutlined />
+              </Space>
+            </a>
+          </Dropdown>
         </Header>
         <Layout className="site-layout">
-          <Sider
-            width={250}
-            style={{ background: colorBgContainer, overflow: "auto" }}
-          >
+          <Sider width={250} style={{ background: colorBgContainer, overflow: "auto" }}>
             <Menu
               mode="inline"
-              defaultOpenKeys={[
-                "exam-management",
-                "healing-management",
-                "reports",
-                "info",
-              ]}
+              defaultOpenKeys={["exam-management", "healing-management", "reports", "info"]}
               items={[
                 {
                   key: "info",
@@ -76,15 +90,11 @@ const MainLayout = () => {
                   children: [
                     {
                       key: "reports-exam",
-                      label: (
-                        <Link to={"/reports/exam"}>Báo cáo khám bệnh</Link>
-                      ),
+                      label: <Link to={"/reports/exam"}>Báo cáo khám bệnh</Link>,
                     },
                     {
                       key: "reports-revenue",
-                      label: (
-                        <Link to={"/reports/revenue"}>Báo cáo doanh thu</Link>
-                      ),
+                      label: <Link to={"/reports/revenue"}>Báo cáo doanh thu</Link>,
                     },
                   ],
                 },
