@@ -1,5 +1,5 @@
 import "./App.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, useNavigate } from "react-router-dom";
 import MainLayout from "./components/Layout";
 import { ConfigProvider, theme } from "antd";
 import { StateProvider } from "./store/store";
@@ -11,6 +11,7 @@ import Reports from "./pages/Reports";
 import Result500 from "./pages/Result500";
 import Infor from "./pages/Infor";
 import Medicine from "./pages/Medicine";
+import Login from "./pages/Login";
 
 const router = createBrowserRouter([
   {
@@ -52,7 +53,7 @@ function App() {
   return (
     <ConfigProvider theme={customTheme}>
       <StateProvider>
-        <RouterProvider router={router} />
+        {localStorage.username ? <RouterProvider router={router} /> : <Login />}
       </StateProvider>
     </ConfigProvider>
   );

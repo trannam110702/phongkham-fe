@@ -22,8 +22,7 @@ import {
 } from "@ant-design/icons";
 import MedicineWrapper, { Buttons } from "./styled";
 import { getAllMedicine } from "../../api/medicine";
-import { getAllMedico } from "../../api/medico";
-import { getAllPatient } from "../../api/patient";
+import { getAllPeople } from "../../api/people";
 import { getAllService } from "../../api/service";
 import { addExam, deleteExam, getAllExam, updateExam } from "../../api/exam";
 
@@ -57,13 +56,7 @@ const Infor = () => {
     setSearchText("");
   };
   const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div
         style={{
           padding: 8,
@@ -74,9 +67,7 @@ const Infor = () => {
           ref={searchInput}
           placeholder={`Tìm kiếm  ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{
             marginBottom: 8,
@@ -162,11 +153,11 @@ const Infor = () => {
     const run = async () => {
       let res;
       setTableLoading(true);
-      res = await getAllMedico();
+      res = await getAllPeople("doctor");
       setMedico(res.data);
       res = await getAllMedicine();
       setMedicine(res.data);
-      res = await getAllPatient();
+      res = await getAllPeople("patient");
       setPatient(res.data);
       res = await getAllService();
       setService(res.data);
@@ -286,22 +277,16 @@ const Infor = () => {
             onClick={() => {
               let rec = {
                 ...record,
-                medico: dataSourceRoot.find((item) => item._id === record._id)
-                  .medico,
-                patient: dataSourceRoot.find((item) => item._id === record._id)
-                  .patient,
-                service: dataSourceRoot.find((item) => item._id === record._id)
-                  .service,
+                medico: dataSourceRoot.find((item) => item._id === record._id).medico,
+                patient: dataSourceRoot.find((item) => item._id === record._id).patient,
+                service: dataSourceRoot.find((item) => item._id === record._id).service,
               };
               console.log(rec);
               setRecordState({
                 ...record,
-                medico: dataSourceRoot.find((item) => item._id === record._id)
-                  .medico,
-                patient: dataSourceRoot.find((item) => item._id === record._id)
-                  .patient,
-                service: dataSourceRoot.find((item) => item._id === record._id)
-                  .service,
+                medico: dataSourceRoot.find((item) => item._id === record._id).medico,
+                patient: dataSourceRoot.find((item) => item._id === record._id).patient,
+                service: dataSourceRoot.find((item) => item._id === record._id).service,
               });
               form.setFieldsValue({ ...rec, examDate: dayjs() });
               setModal(true);
@@ -330,12 +315,7 @@ const Infor = () => {
           onOk={() => {}}
         >
           <Col className="info" span={24}>
-            <Form
-              form={form}
-              labelCol={{ span: 8 }}
-              wrapperCol={{ span: 16 }}
-              labelAlign={"left"}
-            >
+            <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} labelAlign={"left"}>
               <Form.Item
                 label="Nha sĩ"
                 name="medico"
@@ -347,9 +327,7 @@ const Infor = () => {
                   placeholder="Chọn Nha sĩ"
                   showSearch
                   filterOption={(input, option) => {
-                    return (option?.children.toLowerCase() ?? "").includes(
-                      input.toLowerCase()
-                    );
+                    return (option?.children.toLowerCase() ?? "").includes(input.toLowerCase());
                   }}
                   filterSort={(optionA, optionB) =>
                     (optionA?.children ?? "")
@@ -377,9 +355,7 @@ const Infor = () => {
                   placeholder="Chọn Bệnh nhân"
                   showSearch
                   filterOption={(input, option) => {
-                    return (option?.children.toLowerCase() ?? "").includes(
-                      input.toLowerCase()
-                    );
+                    return (option?.children.toLowerCase() ?? "").includes(input.toLowerCase());
                   }}
                   filterSort={(optionA, optionB) =>
                     (optionA?.children ?? "")
@@ -407,9 +383,7 @@ const Infor = () => {
                   placeholder="Chọn Dịch vụ khám"
                   showSearch
                   filterOption={(input, option) => {
-                    return (option?.children.toLowerCase() ?? "").includes(
-                      input.toLowerCase()
-                    );
+                    return (option?.children.toLowerCase() ?? "").includes(input.toLowerCase());
                   }}
                   filterSort={(optionA, optionB) =>
                     (optionA?.children ?? "")
@@ -458,10 +432,7 @@ const Infor = () => {
                   },
                 ]}
               >
-                <Input.TextArea
-                  allowClear
-                  autoSize={{ minRows: 4, maxRows: 6 }}
-                />
+                <Input.TextArea allowClear autoSize={{ minRows: 4, maxRows: 6 }} />
               </Form.Item>
               <Form.List
                 label="Đơn thuốc"
@@ -487,25 +458,21 @@ const Infor = () => {
                           name={[name, "medi"]}
                           label="Thuốc"
                           style={{ width: "400px", margin: "10px" }}
-                          rules={[
-                            { required: true, message: "Điền tên thuốc" },
-                          ]}
+                          rules={[{ required: true, message: "Điền tên thuốc" }]}
                         >
                           <Select
                             placeholder="Chọn Đơn thuốc"
                             allowClear
                             showSearch
                             filterOption={(input, option) => {
-                              return (
-                                option?.children.toLowerCase() ?? ""
-                              ).includes(input.toLowerCase());
+                              return (option?.children.toLowerCase() ?? "").includes(
+                                input.toLowerCase()
+                              );
                             }}
                             filterSort={(optionA, optionB) =>
                               (optionA?.children ?? "")
                                 .toLowerCase()
-                                .localeCompare(
-                                  (optionB?.children ?? "").toLowerCase()
-                                )
+                                .localeCompare((optionB?.children ?? "").toLowerCase())
                             }
                           >
                             {medicine.map((me) => {
@@ -533,9 +500,7 @@ const Infor = () => {
                         <MinusCircleOutlined onClick={() => remove(name)} />
                       </div>
                     ))}
-                    <Form.Item
-                      style={{ display: "flex", justifyContent: "center" }}
-                    >
+                    <Form.Item style={{ display: "flex", justifyContent: "center" }}>
                       <Button
                         style={{ width: 500, marginTop: 24 }}
                         onClick={() => add()}

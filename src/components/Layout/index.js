@@ -9,10 +9,15 @@ const items = [
   {
     key: "1",
     label: "Thông tin tài khoản",
+    onClick: () => {},
   },
   {
     key: "2",
     label: "Đăng xuất",
+    onClick: () => {
+      localStorage.removeItem("username");
+      window.location.reload();
+    },
   },
 ];
 const MainLayout = () => {
@@ -56,8 +61,12 @@ const MainLayout = () => {
                       label: <Link to={"/info/patient"}>Bệnh nhân</Link>,
                     },
                     {
-                      key: "info-medico",
-                      label: <Link to={"/info/medico"}>Nha sĩ</Link>,
+                      key: "info-doctor",
+                      label: <Link to={"/info/doctor"}>Nha sĩ</Link>,
+                    },
+                    {
+                      key: "info-staff",
+                      label: <Link to={"/info/staff"}>Nhân viên</Link>,
                     },
                     {
                       key: "medicine",

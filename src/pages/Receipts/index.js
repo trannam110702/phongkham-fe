@@ -9,8 +9,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { getAllMedicine } from "../../api/medicine";
-import { getAllMedico } from "../../api/medico";
-import { getAllPatient } from "../../api/patient";
+import { getAllPeople } from "../../api/people";
 import { getAllService } from "../../api/service";
 import { addExam, deleteExam, getAllExam, updateExam } from "../../api/exam";
 import ReceiptsWrapper from "./styled";
@@ -40,13 +39,7 @@ const Receipts = () => {
     setSearchText("");
   };
   const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div
         style={{
           padding: 8,
@@ -57,9 +50,7 @@ const Receipts = () => {
           ref={searchInput}
           placeholder={`Tìm kiếm  ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{
             marginBottom: 8,
@@ -145,11 +136,11 @@ const Receipts = () => {
     const run = async () => {
       let res;
       setTableLoading(true);
-      res = await getAllMedico();
+      res = await getAllPeople("doctor");
       setMedico(res.data);
       res = await getAllMedicine();
       setMedicine(res.data);
-      res = await getAllPatient();
+      res = await getAllPeople("patient");
       setPatient(res.data);
       res = await getAllService();
       setService(res.data);
@@ -268,8 +259,8 @@ const Receipts = () => {
               <h1>Phòng khám nha khoa VINPEC</h1>
             </div>
             <div style={{ textAlign: "center" }}>
-              Địa chỉ: Stanford Phố vọng, 207 Giải Phóng, Đồng Tâm, Hai Bà
-              Trưng, Hà Nội <br /> SĐT: +84327086066
+              Địa chỉ: Stanford Phố vọng, 207 Giải Phóng, Đồng Tâm, Hai Bà Trưng, Hà Nội <br /> SĐT:
+              +84327086066
             </div>
           </div>
           <div
@@ -338,15 +329,11 @@ const Receipts = () => {
             <b style={{ display: "block" }}>Tổng tiền thuốc: {mediSum} đồng</b>
             <b style={{ display: "block" }}>
               Tổng tiền thanh toán:{" "}
-              {mediSum +
-                service.find((ser) => ser._id === record.service)?.price}{" "}
-              đồng
+              {mediSum + service.find((ser) => ser._id === record.service)?.price} đồng
             </b>
           </div>
           <div style={{ margin: "20px 0", textAlign: "right" }}>
-            <b style={{ display: "block" }}>
-              Ngày thanh toán: {record.examDate}
-            </b>
+            <b style={{ display: "block" }}>Ngày thanh toán: {record.examDate}</b>
           </div>
           <div
             style={{

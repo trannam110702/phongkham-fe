@@ -4,18 +4,7 @@ import { Row, Col, Table, Form, Input, Button, Modal, Space, Tag } from "antd";
 import { ExclamationCircleFilled, SearchOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import InforWrapper, { Buttons } from "./styled";
-import {
-  getAllPatient,
-  addPatient,
-  deletePatient,
-  updatePatient,
-} from "../../api/patient";
-import {
-  getAllMedico,
-  addMedico,
-  deleteMedico,
-  updateMedico,
-} from "../../api/medico";
+import { getAllPeople, addPeople, deletePeople, updatePeople } from "../../api/people";
 import { Store } from "../../store/store";
 const { confirm } = Modal;
 const Infor = () => {
@@ -41,13 +30,7 @@ const Infor = () => {
     setSearchText("");
   };
   const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div
         style={{
           padding: 8,
@@ -58,9 +41,7 @@ const Infor = () => {
           ref={searchInput}
           placeholder={`Tìm kiếm  ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{
             marginBottom: 8,
@@ -146,32 +127,17 @@ const Infor = () => {
     const run = async () => {
       let res, resData;
       setTableLoading(true);
-      switch (type) {
-        case "patient":
-          res = await getAllPatient();
-          resData = res.data.map((item) => {
-            return { ...item, key: item._id };
-          });
-          setDataSource(resData);
-          setTableLoading(false);
-          break;
-        case "medico":
-          res = await getAllMedico();
-          resData = res.data.map((item) => {
-            return { ...item, key: item._id };
-          });
-          setDataSource(resData);
-          setTableLoading(false);
-          break;
-        default:
-          setTableLoading(false);
-      }
+      res = await getAllPeople(type);
+      resData = res.data.map((item) => {
+        return { ...item, key: item._id };
+      });
+      setDataSource(resData);
+      setTableLoading(false);
     };
     run();
   }, [type, modal]);
   const reloadTable = async () => {
-    const res =
-      type === "patient" ? await getAllPatient() : await getAllMedico();
+    const res = await getAllPeople(type);
     let resData = res.data.map((item) => {
       return { ...item, key: item._id };
     });
@@ -180,9 +146,8 @@ const Infor = () => {
   };
   const showDeleteConfirm = (rec) => {
     const onOk = async () => {
-      const res =
-        type === "patient" ? await deletePatient(rec) : await deleteMedico(rec);
-      showNotification({ message: res.statusText, type: "info" });
+      const res = await deletePeople(rec);
+      showNotification({ message: "Xóa thành công", type: "info" });
       reloadTable();
     };
     const onCancel = () => {
@@ -289,12 +254,7 @@ const Infor = () => {
           onOk={() => {}}
         >
           <Col className="info" span={24}>
-            <Form
-              form={form}
-              labelCol={{ span: 8 }}
-              wrapperCol={{ span: 16 }}
-              labelAlign={"left"}
-            >
+            <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} labelAlign={"left"}>
               <Form.Item
                 name="name"
                 label={`Tên ${typeName}`}
@@ -365,20 +325,10 @@ const Infor = () => {
                       form
                         .validateFields()
                         .then((values) => {
-                          switch (type) {
-                            case "patient":
-                              return updatePatient({
-                                ...values,
-                                _id: record._id,
-                              });
-                            case "medico":
-                              return updateMedico({
-                                ...values,
-                                _id: record._id,
-                              });
-                            default:
-                              return new Error("Error");
-                          }
+                          return updatePeople({
+                            ...record,
+                            ...values,
+                          });
                         })
                         .then((value) => {
                           showNotification({
@@ -408,14 +358,7 @@ const Infor = () => {
                       form
                         .validateFields()
                         .then((values) => {
-                          switch (type) {
-                            case "patient":
-                              return addPatient(values);
-                            case "medico":
-                              return addMedico(values);
-                            default:
-                              return new Error("Error");
-                          }
+                          return addPeople({ ...values, type });
                         })
                         .then((value) => {
                           showNotification({
