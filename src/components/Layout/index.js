@@ -4,6 +4,7 @@ import { InfoCircleOutlined, DownOutlined } from "@ant-design/icons";
 import { Link, Outlet } from "react-router-dom";
 import LayoutWrapper from "./styled";
 import logo from "../../assets/imgs/logo.png";
+import Login from "../../pages/Login";
 const { Header, Sider, Content } = Layout;
 const items = [
   {
@@ -24,6 +25,8 @@ const MainLayout = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+
+  if (!localStorage.username) return <Login />;
   return (
     <LayoutWrapper>
       <Layout className="main-layout">

@@ -1,26 +1,10 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import Highlighter from "react-highlight-words";
 import dayjs from "dayjs";
-import {
-  Row,
-  Col,
-  Table,
-  Form,
-  Input,
-  Button,
-  Modal,
-  Space,
-  DatePicker,
-  InputNumber,
-} from "antd";
+import { Row, Col, Table, Form, Input, Button, Modal, Space, DatePicker, InputNumber } from "antd";
 import { ExclamationCircleFilled, SearchOutlined } from "@ant-design/icons";
 import MedicineWrapper, { Buttons } from "./styled";
-import {
-  getAllMedicine,
-  addMedicine,
-  deleteMedicine,
-  updateMedicine,
-} from "../../api/medicine";
+import { getAllMedicine, addMedicine, deleteMedicine, updateMedicine } from "../../api/medicine";
 
 import { Store } from "../../store/store";
 
@@ -46,13 +30,7 @@ const Infor = () => {
     setSearchText("");
   };
   const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div
         style={{
           padding: 8,
@@ -63,9 +41,7 @@ const Infor = () => {
           ref={searchInput}
           placeholder={`Tìm kiếm  ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{
             marginBottom: 8,
@@ -216,9 +192,11 @@ const Infor = () => {
     },
     {
       title: "Hạn sử dụng",
-      dataIndex: "dueDate",
-      key: "dueDate",
-      ...getColumnSearchProps("dueDate"),
+      dataIndex: "duedate",
+      key: "duedate",
+      render: (text) => {
+        return new Date(text).toLocaleDateString();
+      },
     },
     {
       title: "Đơn vị",
@@ -279,12 +257,7 @@ const Infor = () => {
           onOk={() => {}}
         >
           <Col className="info" span={24}>
-            <Form
-              form={form}
-              labelCol={{ span: 8 }}
-              wrapperCol={{ span: 16 }}
-              labelAlign={"left"}
-            >
+            <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} labelAlign={"left"}>
               <Form.Item
                 name="name"
                 label={`Tên thuốc`}
@@ -366,9 +339,7 @@ const Infor = () => {
                   style={{
                     width: "100%",
                   }}
-                  formatter={(value) =>
-                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                  }
+                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                 />
               </Form.Item>
               <Buttons>

@@ -175,10 +175,10 @@ const Infor = () => {
       resData = res.data.map((item) => {
         return {
           ...item,
-          key: item._id,
-          medico: medico.find((me) => me._id === item.medico)?.name,
-          patient: patient.find((me) => me._id === item.patient)?.name,
-          service: service.find((me) => me._id === item.service)?.name,
+          key: item.code,
+          medico: medico.find((me) => me.code === item.medico)?.name,
+          patient: patient.find((me) => me.code === item.patient)?.name,
+          service: service.find((me) => me.code === item.service)?.name,
         };
       });
       setDataSource(resData);
@@ -193,10 +193,10 @@ const Infor = () => {
     resData = res.data.map((item) => {
       return {
         ...item,
-        key: item._id,
-        medico: medico.find((me) => me._id === item.medico)?.name,
-        patient: patient.find((me) => me._id === item.patient)?.name,
-        service: service.find((me) => me._id === item.service)?.name,
+        key: item.code,
+        medico: medico.find((me) => me.code === item.medico)?.name,
+        patient: patient.find((me) => me.code === item.patient)?.name,
+        service: service.find((me) => me.code === item.service)?.name,
       };
     });
     setDataSource(resData);
@@ -277,16 +277,16 @@ const Infor = () => {
             onClick={() => {
               let rec = {
                 ...record,
-                medico: dataSourceRoot.find((item) => item._id === record._id).medico,
-                patient: dataSourceRoot.find((item) => item._id === record._id).patient,
-                service: dataSourceRoot.find((item) => item._id === record._id).service,
+                medico: dataSourceRoot.find((item) => item.code === record.code).medico,
+                patient: dataSourceRoot.find((item) => item.code === record.code).patient,
+                service: dataSourceRoot.find((item) => item.code === record.code).service,
               };
               console.log(rec);
               setRecordState({
                 ...record,
-                medico: dataSourceRoot.find((item) => item._id === record._id).medico,
-                patient: dataSourceRoot.find((item) => item._id === record._id).patient,
-                service: dataSourceRoot.find((item) => item._id === record._id).service,
+                medico: dataSourceRoot.find((item) => item.code === record.code).medico,
+                patient: dataSourceRoot.find((item) => item.code === record.code).patient,
+                service: dataSourceRoot.find((item) => item.code === record.code).service,
               });
               form.setFieldsValue({ ...rec, examDate: dayjs() });
               setModal(true);
@@ -337,7 +337,7 @@ const Infor = () => {
                 >
                   {medico.map((me) => {
                     return (
-                      <Option key={me._id} value={me._id}>
+                      <Option key={me.code} value={me.code}>
                         {`${me?.name} - ${me.cccd}`}
                       </Option>
                     );
@@ -365,7 +365,7 @@ const Infor = () => {
                 >
                   {patient.map((pati) => {
                     return (
-                      <Option key={pati._id} value={pati._id}>
+                      <Option key={pati.code} value={pati.code}>
                         {`${pati?.name} - ${pati.cccd}`}
                       </Option>
                     );
@@ -393,7 +393,7 @@ const Infor = () => {
                 >
                   {service.map((ser) => {
                     return (
-                      <Option key={ser._id} value={ser._id}>
+                      <Option key={ser.code} value={ser.code}>
                         {`${ser?.name} - ${ser.code}`}
                       </Option>
                     );
@@ -477,7 +477,7 @@ const Infor = () => {
                           >
                             {medicine.map((me) => {
                               return (
-                                <Option key={me._id} value={me._id}>
+                                <Option key={me.code} value={me.code}>
                                   {`${me?.name} - ${me.code}`}
                                 </Option>
                               );
@@ -528,7 +528,7 @@ const Infor = () => {
                         return updateExam({
                           str: JSON.stringify({
                             ...values,
-                            _id: recordState._id,
+                            code: recordState.code,
                             examDate: values.examDate.format("DD/MM/YYYY"),
                           }),
                         });

@@ -11,7 +11,6 @@ import Reports from "./pages/Reports";
 import Result500 from "./pages/Result500";
 import Infor from "./pages/Infor";
 import Medicine from "./pages/Medicine";
-import Login from "./pages/Login";
 
 const router = createBrowserRouter([
   {
@@ -53,7 +52,7 @@ function App() {
   return (
     <ConfigProvider theme={customTheme}>
       <StateProvider>
-        {localStorage.username ? <RouterProvider router={router} /> : <Login />}
+        <RouterProvider router={router} />
       </StateProvider>
     </ConfigProvider>
   );
