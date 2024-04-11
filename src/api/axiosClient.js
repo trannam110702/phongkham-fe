@@ -1,11 +1,11 @@
 import axios from "axios";
+import { message } from "antd";
 const axiosClient = axios.create({
   baseURL: "http://localhost:4001",
   timeout: 20000,
   headers: {
-    "Content-Type": "application/x-www-form-urlencoded",
+    "Content-Type": "application/json",
   },
 });
-//https://phongkham-be.onrender.com
-//http://localhost:4001
+
 export default axiosClient;

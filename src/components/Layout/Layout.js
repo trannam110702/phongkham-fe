@@ -25,7 +25,7 @@ const MainLayout = ({ children }) => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  // if (!window.localStorage.getItem("username")) return <Login />;
+
   return (
     <LayoutWrapper>
       <Layout className="main-layout">
