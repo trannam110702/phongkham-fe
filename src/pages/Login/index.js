@@ -25,7 +25,10 @@ const LoginPage = () => {
       navigate("/");
       showNotification({ type: "success", message: "Login successful" });
     } catch (error) {
-      showNotification({ type: "error", message: "Login fail" });
+      showNotification({
+        type: "error",
+        message: error?.response?.data || JSON.stringify(error) || "Login fail",
+      });
     } finally {
       setLoading(false);
     }
