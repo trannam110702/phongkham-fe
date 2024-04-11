@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Form, Input, Button } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { Store } from "../../store/store";
@@ -12,15 +13,17 @@ import { login } from "../../api/login";
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const { showNotification } = useContext(Store);
+  const navigate = useNavigate();
   const onFinish = async ({ username, password }) => {
     try {
       setLoading(true);
       const res = await login({ username, password });
-      Object.keys(res.data).forEach((key) => {
+      for (let key in res.data) {
         const data = res.data[key];
         window.localStorage.setItem(key, JSON.stringify(data));
-      });
-      window.location.reload();
+      }
+      navigate("/");
+      showNotification({ type: "success", message: "Login successful" });
     } catch (error) {
       showNotification({ type: "error", message: error });
     } finally {

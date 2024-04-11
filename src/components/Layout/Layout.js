@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Button, Dropdown, Layout, Menu, Space, theme } from "antd";
 import { InfoCircleOutlined, DownOutlined } from "@ant-design/icons";
-import { Link, Outlet } from "react-router-dom";
+import { Link } from "react-router-dom";
 import LayoutWrapper from "./styled";
 import logo from "../../assets/imgs/logo.png";
-import Login from "../../pages/Login";
+
 const { Header, Sider, Content } = Layout;
 const items = [
   {
@@ -21,12 +21,11 @@ const items = [
     },
   },
 ];
-const MainLayout = () => {
+const MainLayout = ({ children }) => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-
-  if (!window.localStorage.getItem("username")) return <Login />;
+  // if (!window.localStorage.getItem("username")) return <Login />;
   return (
     <LayoutWrapper>
       <Layout className="main-layout">
@@ -121,7 +120,7 @@ const MainLayout = () => {
               background: "white",
             }}
           >
-            <Outlet />
+            {children}
           </Content>
         </Layout>
       </Layout>
