@@ -16,10 +16,9 @@ const LoginPage = () => {
     try {
       setLoading(true);
       const res = await login({ username, password });
-      console.log(res.data);
       Object.keys(res.data).forEach((key) => {
         const data = res.data[key];
-        localStorage.setItem(key, data);
+        window.localStorage.setItem(key, JSON.stringify(data));
       });
       window.location.reload();
     } catch (error) {
