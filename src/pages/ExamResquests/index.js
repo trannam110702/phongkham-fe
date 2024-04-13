@@ -176,9 +176,6 @@ const Infor = () => {
         return {
           ...item,
           key: item.code,
-          medico: medico.find((me) => me.code === item.medico)?.name,
-          patient: patient.find((me) => me.code === item.patient)?.name,
-          service: service.find((me) => me.code === item.service)?.name,
         };
       });
       setDataSource(resData);
@@ -231,27 +228,22 @@ const Infor = () => {
     },
     {
       title: "Nha sĩ",
-      dataIndex: "medico",
+      dataIndex: "medico_name",
       key: "medico",
       ...getColumnSearchProps("medico"),
     },
     {
       title: "Bệnh nhân",
-      dataIndex: "patient",
+      dataIndex: "patient_name",
       key: "patient",
       ...getColumnSearchProps("patient"),
-    },
-    {
-      title: "Dịch vụ",
-      dataIndex: "service",
-      key: "service",
-      ...getColumnSearchProps("service"),
     },
     {
       title: "Ngày tạo ",
       dataIndex: "examDate",
       key: "examDate",
       ...getColumnSearchProps("examDate"),
+      render: (text) => <>{dayjs(text).format("DD/MM/YYYY")}</>,
     },
     {
       title: "Mô tả",
@@ -266,7 +258,7 @@ const Infor = () => {
         <Space size="small">
           <Button
             onClick={() => {
-              showDeleteConfirm(record);
+              showDeleteConfirm({ code: record.code });
             }}
             type="primary"
             danger
@@ -277,17 +269,14 @@ const Infor = () => {
             onClick={() => {
               let rec = {
                 ...record,
-                medico: dataSourceRoot.find((item) => item.code === record.code).medico,
-                patient: dataSourceRoot.find((item) => item.code === record.code).patient,
-                service: dataSourceRoot.find((item) => item.code === record.code).service,
+                services: record.services.map((ser) => ser.services),
+                medicines: record.medicines.map((medicine) => ({
+                  medi: medicine.medicine,
+                  num: medicine.quantity,
+                })),
               };
               console.log(rec);
-              setRecordState({
-                ...record,
-                medico: dataSourceRoot.find((item) => item.code === record.code).medico,
-                patient: dataSourceRoot.find((item) => item.code === record.code).patient,
-                service: dataSourceRoot.find((item) => item.code === record.code).service,
-              });
+              setRecordState(rec);
               form.setFieldsValue({ ...rec, examDate: dayjs() });
               setModal(true);
             }}
@@ -374,12 +363,13 @@ const Infor = () => {
               </Form.Item>
               <Form.Item
                 label="Dịch vụ khám"
-                name="service"
+                name="services"
                 rules={[{ required: true, message: "Cần chọn trường này" }]}
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 18 }}
               >
                 <Select
+                  mode="multiple"
                   placeholder="Chọn Dịch vụ khám"
                   showSearch
                   filterOption={(input, option) => {
@@ -390,6 +380,7 @@ const Infor = () => {
                       .toLowerCase()
                       .localeCompare((optionB?.children ?? "").toLowerCase())
                   }
+                  onChange={(value) => console.log(value)}
                 >
                   {service.map((ser) => {
                     return (
@@ -436,70 +427,74 @@ const Infor = () => {
               </Form.Item>
               <Form.List
                 label="Đơn thuốc"
-                name="medicine"
+                name="medicines"
                 rules={[{ required: true, message: "Cần chọn trường này" }]}
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 18 }}
               >
                 {(fields, { add, remove }) => (
                   <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <div
-                        className="medi-list"
-                        key={key}
-                        style={{
-                          display: "flex",
-                          gap: "12px",
-                          marginBottom: 6,
-                        }}
-                      >
-                        <Form.Item
-                          {...restField}
-                          name={[name, "medi"]}
-                          label="Thuốc"
-                          style={{ width: "400px", margin: "10px" }}
-                          rules={[{ required: true, message: "Điền tên thuốc" }]}
+                    {fields.map(({ key, name, ...restField }) => {
+                      console.log({ key, name, ...restField });
+                      console.log(fields);
+                      return (
+                        <div
+                          className="medi-list"
+                          key={key}
+                          style={{
+                            display: "flex",
+                            gap: "12px",
+                            marginBottom: 6,
+                          }}
                         >
-                          <Select
-                            placeholder="Chọn Đơn thuốc"
-                            allowClear
-                            showSearch
-                            filterOption={(input, option) => {
-                              return (option?.children.toLowerCase() ?? "").includes(
-                                input.toLowerCase()
-                              );
-                            }}
-                            filterSort={(optionA, optionB) =>
-                              (optionA?.children ?? "")
-                                .toLowerCase()
-                                .localeCompare((optionB?.children ?? "").toLowerCase())
-                            }
+                          <Form.Item
+                            {...restField}
+                            name={[name, "medi"]}
+                            label="Thuốc"
+                            style={{ width: "400px", margin: "10px" }}
+                            rules={[{ required: true, message: "Điền tên thuốc" }]}
                           >
-                            {medicine.map((me) => {
-                              return (
-                                <Option key={me.code} value={me.code}>
-                                  {`${me?.name} - ${me.code}`}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, "num"]}
-                          style={{ width: "400px", margin: "10px" }}
-                          label="Số lượng"
-                          rules={[{ required: true, message: "Điền số lượng" }]}
-                        >
-                          <InputNumber
-                            style={{ width: "100%" }}
-                            placeholder="Điền số lượng"
-                            min={1}
-                          />
-                        </Form.Item>
-                        <MinusCircleOutlined onClick={() => remove(name)} />
-                      </div>
-                    ))}
+                            <Select
+                              placeholder="Chọn Đơn thuốc"
+                              allowClear
+                              showSearch
+                              filterOption={(input, option) => {
+                                return (option?.children.toLowerCase() ?? "").includes(
+                                  input.toLowerCase()
+                                );
+                              }}
+                              filterSort={(optionA, optionB) =>
+                                (optionA?.children ?? "")
+                                  .toLowerCase()
+                                  .localeCompare((optionB?.children ?? "").toLowerCase())
+                              }
+                            >
+                              {medicine.map((me) => {
+                                return (
+                                  <Option key={me.code} value={me.code}>
+                                    {`${me?.name} - ${me.code}`}
+                                  </Option>
+                                );
+                              })}
+                            </Select>
+                          </Form.Item>
+                          <Form.Item
+                            {...restField}
+                            name={[name, "num"]}
+                            style={{ width: "400px", margin: "10px" }}
+                            label="Số lượng"
+                            rules={[{ required: true, message: "Điền số lượng" }]}
+                          >
+                            <InputNumber
+                              style={{ width: "100%" }}
+                              placeholder="Điền số lượng"
+                              min={1}
+                            />
+                          </Form.Item>
+                          <MinusCircleOutlined onClick={() => remove(name)} />
+                        </div>
+                      );
+                    })}
                     <Form.Item style={{ display: "flex", justifyContent: "center" }}>
                       <Button
                         style={{ width: 500, marginTop: 24 }}
@@ -562,10 +557,8 @@ const Infor = () => {
                       .validateFields()
                       .then((values) => {
                         return addExam({
-                          str: JSON.stringify({
-                            ...values,
-                            examDate: values.examDate.format("DD/MM/YYYY"),
-                          }),
+                          ...values,
+                          examDate: values.examDate.format("YYYY-MM-DD"),
                         });
                       })
                       .then((value) => {
