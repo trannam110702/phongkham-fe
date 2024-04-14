@@ -8,6 +8,7 @@ import { Store } from "../../store/store";
 
 const Services = () => {
   const [form] = Form.useForm();
+  const { showNotification } = useContext(Store);
   const [loading, setLoading] = useState(false);
   const [loading1, setLoading1] = useState(false);
   const [addModal, setAddModal] = useState(false);
@@ -55,18 +56,6 @@ const Services = () => {
               <Input />
             </Form.Item>
             <Form.Item
-              name="code"
-              label="Mã gói khám"
-              rules={[
-                {
-                  required: true,
-                  message: "Cần nhập trường này",
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
               name="price"
               label="Giá gói khám"
               rules={[
@@ -82,9 +71,7 @@ const Services = () => {
                 style={{
                   width: "100%",
                 }}
-                formatter={(value) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
               />
             </Form.Item>
             <Form.Item
@@ -97,10 +84,7 @@ const Services = () => {
                 },
               ]}
             >
-              <Input.TextArea
-                allowClear
-                autoSize={{ minRows: 4, maxRows: 6 }}
-              />
+              <Input.TextArea allowClear autoSize={{ minRows: 4, maxRows: 6 }} />
             </Form.Item>
             <Form.Item noStyle>
               <div className="footer">
@@ -113,9 +97,26 @@ const Services = () => {
                   htmlType="submit"
                   loading={loading1}
                   onClick={() => {
-                    form.validateFields().then((values) => {
-                      addService(values);
-                    });
+                    form
+                      .validateFields()
+                      .then((values) => {
+                        addService(values);
+                      })
+                      .then((value) => {
+                        showNotification({
+                          message: "Thành công",
+                          type: "success",
+                        });
+                      })
+                      .catch((e) => {
+                        showNotification({
+                          message: "Thất bại",
+                          type: "error",
+                        });
+                      })
+                      .finally(() => {
+                        setLoading(false);
+                      });
                   }}
                 >
                   Thêm
@@ -148,6 +149,7 @@ const Services = () => {
                 title={pack.name}
                 price={pack.price}
                 record={pack}
+                setallService={setallService}
               />
             );
           })}

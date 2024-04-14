@@ -6,7 +6,7 @@ import { updateService, deleteService } from "../../api/service";
 import Building from "../../assets/imgs/Buildings.png";
 import { Store } from "../../store/store";
 
-const ServiceCard = ({ img, title, price, record }) => {
+const ServiceCard = ({ img, title, price, record, setallService }) => {
   const { showNotification } = useContext(Store);
   const [form] = Form.useForm();
   const { confirm } = Modal;
@@ -14,6 +14,7 @@ const ServiceCard = ({ img, title, price, record }) => {
   const showDeleteConfirm = (rec) => {
     const onOk = async () => {
       const res = await deleteService(rec);
+      setallService((prev) => prev.filter((item) => item.code !== rec.code));
       showNotification({ message: res.statusText, type: "info" });
     };
     const onCancel = () => {};
@@ -77,9 +78,7 @@ const ServiceCard = ({ img, title, price, record }) => {
               style={{
                 width: "100%",
               }}
-              formatter={(value) =>
-                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-              }
+              formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
               defaultValue={1000000}
             />
           </Form.Item>
