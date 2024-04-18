@@ -25,7 +25,7 @@ import { getAllMedicine } from "../../api/medicine";
 import { getAllPeople } from "../../api/people";
 import { getAllService } from "../../api/service";
 import { addExam, deleteExam, getAllExam, updateExam } from "../../api/exam";
-
+import { createInvoice } from "../../api/invoice";
 import { Store } from "../../store/store";
 
 const { confirm } = Modal;
@@ -218,7 +218,29 @@ const Infor = () => {
       onCancel,
     });
   };
-
+  const showInvoiceConfirm = (rec) => {
+    const onOk = async () => {
+      try {
+        const res = await createInvoice(rec);
+        showNotification({ message: res.statusText, type: "info" });
+        reloadTable();
+      } catch (error) {
+        showNotification({ message: error.message || "Thất bại", type: "error" });
+      }
+    };
+    const onCancel = () => {
+      reloadTable();
+    };
+    confirm({
+      title: "Tạo hóa đơn từ bản ghi này?",
+      icon: <ExclamationCircleFilled />,
+      okText: "Có",
+      okType: "danger",
+      cancelText: "Không",
+      onOk,
+      onCancel,
+    });
+  };
   const columns = [
     {
       title: "STT",
@@ -275,7 +297,6 @@ const Infor = () => {
                   num: medicine.quantity,
                 })),
               };
-              console.log(rec);
               setRecordState(rec);
               form.setFieldsValue({ ...rec, examDate: dayjs() });
               setModal(true);
@@ -283,6 +304,13 @@ const Infor = () => {
             type="primary"
           >
             Sửa
+          </Button>
+          <Button
+            onClick={() => {
+              showInvoiceConfirm({ examCode: record.code, date: dayjs().format("YYYY-MM-DD") });
+            }}
+          >
+            Xuất hóa đơn
           </Button>
         </Space>
       ),
@@ -521,11 +549,9 @@ const Infor = () => {
                       .then((values) => {
                         console.log(values);
                         return updateExam({
-                          str: JSON.stringify({
-                            ...values,
-                            code: recordState.code,
-                            examDate: values.examDate.format("DD/MM/YYYY"),
-                          }),
+                          ...values,
+                          code: recordState.code,
+                          examDate: values.examDate.format("YYYY-MM-DD"),
                         });
                       })
                       .then((value) => {
@@ -536,7 +562,7 @@ const Infor = () => {
                       })
                       .catch((e) => {
                         showNotification({
-                          message: "Thất bại",
+                          message: "Sửa thất bại",
                           type: "error",
                         });
                       })

@@ -7,11 +7,12 @@ import { StateProvider } from "./store/store";
 import ExamResquests from "./pages/ExamResquests";
 import Services from "./pages/Services";
 import Receipts from "./pages/Receipts";
-import Reports from "./pages/Reports";
+import Schedule from "./pages/Schedule";
+import Reports from "./pages/ServiceReport";
+import RevenueReport from "./pages/RevenueReport";
 import Result500 from "./pages/Result500";
 import Infor from "./pages/Infor";
 import Medicine from "./pages/Medicine";
-import Login from "./pages/Login";
 
 const router = createBrowserRouter([
   {
@@ -31,8 +32,16 @@ const router = createBrowserRouter([
         element: <Receipts />,
       },
       {
-        path: "reports/:type",
+        path: "schedule",
+        element: <Schedule />,
+      },
+      {
+        path: "reports/exam",
         element: <Reports />,
+      },
+      {
+        path: "reports/revenue",
+        element: <RevenueReport />,
       },
       {
         path: "info/:type",

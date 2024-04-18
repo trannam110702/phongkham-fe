@@ -93,6 +93,10 @@ const MainLayout = ({ children }) => {
                       key: "receipts",
                       label: <Link to={"/receipts"}>Hóa đơn</Link>,
                     },
+                    {
+                      key: "schedule",
+                      label: <Link to={"/schedule"}>Lịch hẹn</Link>,
+                    },
                   ],
                 },
                 {

@@ -11,9 +11,10 @@ import {
 import { getAllMedicine } from "../../api/medicine";
 import { getAllPeople } from "../../api/people";
 import { getAllService } from "../../api/service";
-import { addExam, deleteExam, getAllExam, updateExam } from "../../api/exam";
+import { getAllInvoice } from "../../api/invoice";
 import ReceiptsWrapper from "./styled";
 import logo from "../../assets/imgs/logo.svg";
+import dayjs from "dayjs";
 const Receipts = () => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
@@ -144,7 +145,7 @@ const Receipts = () => {
       setPatient(res.data);
       res = await getAllService();
       setService(res.data);
-      res = await getAllExam();
+      res = await getAllInvoice();
       setDataSourceRoot(res.data);
       setTableLoading(false);
     };
@@ -154,14 +155,14 @@ const Receipts = () => {
     const run = async () => {
       let res, resData;
       setTableLoading(true);
-      res = await getAllExam();
+      res = await getAllInvoice();
       resData = res.data.map((item) => {
         return {
           ...item,
-          key: item._id,
-          medico: medico.find((me) => me._id === item.medico)?.name,
-          patient: patient.find((me) => me._id === item.patient)?.name,
-          service: service.find((me) => me._id === item.service)?.name,
+          key: item.code,
+          medico: medico.find((me) => me.code === item.medico)?.name,
+          patient: patient.find((me) => me.code === item.patient)?.name,
+          service: service.find((me) => me.code === item.service)?.name,
         };
       });
       setDataSource(resData);
@@ -178,33 +179,28 @@ const Receipts = () => {
     },
     {
       title: "Nha sĩ",
-      dataIndex: "medico",
+      dataIndex: "medico_name",
       key: "medico",
       ...getColumnSearchProps("medico"),
     },
     {
       title: "Bệnh nhân",
-      dataIndex: "patient",
+      dataIndex: "patient_name",
       key: "patient",
       ...getColumnSearchProps("patient"),
     },
     {
-      title: "Dịch vụ",
-      dataIndex: "service",
-      key: "service",
-      ...getColumnSearchProps("service"),
+      title: "Phí khám bệnh",
+      dataIndex: "service_fee",
+      key: "patient",
+      ...getColumnSearchProps("patient"),
     },
     {
       title: "Ngày tạo ",
-      dataIndex: "examDate",
-      key: "examDate",
-      ...getColumnSearchProps("examDate"),
-    },
-    {
-      title: "Mô tả",
-      dataIndex: "description",
-      key: "description",
-      ...getColumnSearchProps("description"),
+      dataIndex: "date",
+      key: "date",
+      ...getColumnSearchProps("date"),
+      render: (text) => <>{dayjs(text).format("DD/MM/YYYY")}</>,
     },
   ];
   const medicineColumn = [
@@ -226,15 +222,15 @@ const Receipts = () => {
     },
     {
       title: "Số lượng",
-      dataIndex: "num",
-      key: "num",
+      dataIndex: "quantity",
+      key: "quantity",
     },
     {
       title: "Thành tiền",
       dataIndex: "total",
       key: "total",
       render: (tex, record) => {
-        let mul = record.price * record.num;
+        let mul = record.price * record.quantity;
         return <>{mul}</>;
       },
     },
@@ -256,7 +252,7 @@ const Receipts = () => {
               style={{ display: "flex", gap: "12px", justifyContent: "center" }}
             >
               <img src={logo} alt="" />
-              <h1>Phòng khám nha khoa VINPEC</h1>
+              <h1>Phòng khám nha khoa Home dental</h1>
             </div>
             <div style={{ textAlign: "center" }}>
               Địa chỉ: Stanford Phố vọng, 207 Giải Phóng, Đồng Tâm, Hai Bà Trưng, Hà Nội <br /> SĐT:
@@ -279,7 +275,7 @@ const Receipts = () => {
               marginBottom: "20px",
             }}
           >
-            Mã hóa đơn: {record._id}
+            Mã hóa đơn: {record.code}
           </div>
           <div
             style={{
@@ -290,20 +286,17 @@ const Receipts = () => {
           >
             <div>
               <b>Khách hàng: </b>
-              {patient.find((pati) => pati._id === record.patient)?.name}
+              {patient.find((pati) => pati.code === record.patient_code)?.name}
               <br />
               <b>Địa chỉ: </b>
-              {patient.find((pati) => pati._id === record.patient)?.address}
+              {patient.find((pati) => pati.code === record.patient_code)?.address}
               <br />
               <b>CCCD: </b>
-              {patient.find((pati) => pati._id === record.patient)?.cccd}
+              {patient.find((pati) => pati.code === record.patient_code)?.cccd}
             </div>
             <div>
-              <b>Dịch vụ: </b>
-              {service.find((ser) => ser._id === record.service)?.name}
-              <br />
-              <b>Giá: </b>
-              {service.find((ser) => ser._id === record.service)?.price} đồng
+              <b>Giá dịch vụ: </b>
+              {record?.service_fee} đồng
             </div>
           </div>
           <b
@@ -318,22 +311,23 @@ const Receipts = () => {
           <Table
             columns={medicineColumn}
             pagination={false}
-            dataSource={record.medicine}
+            dataSource={record.invoiceMedicine}
             summary={(pageData) => {
               let sum = 0;
-              pageData.forEach((medi) => (sum += medi.price * medi.num));
+              pageData.forEach((medi) => (sum += medi.price * medi.quantity));
               setMediSum(sum);
             }}
           ></Table>
           <div style={{ margin: "20px 0", textAlign: "right" }}>
             <b style={{ display: "block" }}>Tổng tiền thuốc: {mediSum} đồng</b>
             <b style={{ display: "block" }}>
-              Tổng tiền thanh toán:{" "}
-              {mediSum + service.find((ser) => ser._id === record.service)?.price} đồng
+              Tổng tiền thanh toán: {mediSum + record?.service_fee} đồng
             </b>
           </div>
           <div style={{ margin: "20px 0", textAlign: "right" }}>
-            <b style={{ display: "block" }}>Ngày thanh toán: {record.examDate}</b>
+            <b style={{ display: "block" }}>
+              Ngày thanh toán: {dayjs(record.date).format("DD/MM/YYYY")}
+            </b>
           </div>
           <div
             style={{
@@ -366,25 +360,23 @@ const Receipts = () => {
         dataSource={dataSource}
         pagination={false}
         loading={tableLoading}
-        ss
         onRow={(record, rowIndex) => {
           return {
             onClick: (event) => {
               let rec = dataSourceRoot.find((item) => {
-                return item._id === record._id;
+                return item.code === record.code;
               });
-              rec.medicine = rec.medicine.map((medi) => {
+              rec.invoiceMedicine = rec.invoiceMedicine.map((medi) => {
                 let mediInfo = medicine.find((me) => {
-                  return me._id === medi.medi;
+                  return me.code === medi.medicine;
                 });
                 return {
                   ...medi,
                   name: mediInfo.name,
                   price: mediInfo.price,
-                  key: mediInfo._id,
+                  key: mediInfo.code,
                 };
               });
-              console.log(rec);
               setRecord(rec);
               setModal(true);
             },
