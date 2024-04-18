@@ -255,8 +255,7 @@ const Receipts = () => {
               <h1>Phòng khám nha khoa Home dental</h1>
             </div>
             <div style={{ textAlign: "center" }}>
-              Địa chỉ: Stanford Phố vọng, 207 Giải Phóng, Đồng Tâm, Hai Bà Trưng, Hà Nội <br /> SĐT:
-              +84327086066
+              Địa chỉ: Số 30 Triệu Việt Vương, Hai Bà Trưng, Hà Nội <br /> SĐT: +84327086066
             </div>
           </div>
           <div

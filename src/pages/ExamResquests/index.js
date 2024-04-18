@@ -440,16 +440,20 @@ const Infor = () => {
                 />
               </Form.Item>
               <Form.Item
+                name="diagnostic"
+                label="Tình trạng bệnh nhân"
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+                rules={[]}
+              >
+                <Input.TextArea allowClear autoSize={{ minRows: 4, maxRows: 6 }} />
+              </Form.Item>
+              <Form.Item
                 name="description"
                 label="Chuẩn đoán"
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 18 }}
-                rules={[
-                  {
-                    required: true,
-                    message: "Cần nhập trường này",
-                  },
-                ]}
+                rules={[]}
               >
                 <Input.TextArea allowClear autoSize={{ minRows: 4, maxRows: 6 }} />
               </Form.Item>
