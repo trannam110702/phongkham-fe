@@ -252,19 +252,19 @@ const Infor = () => {
       title: "Nha sĩ",
       dataIndex: "medico_name",
       key: "medico",
-      ...getColumnSearchProps("medico"),
+      ...getColumnSearchProps("medico_name"),
     },
     {
       title: "Bệnh nhân",
       dataIndex: "patient_name",
       key: "patient",
-      ...getColumnSearchProps("patient"),
+      ...getColumnSearchProps("patient_name"),
     },
     {
       title: "Ngày tạo ",
-      dataIndex: "examDate",
-      key: "examDate",
-      ...getColumnSearchProps("examDate"),
+      dataIndex: "examdate",
+      key: "examdate",
+      ...getColumnSearchProps("examdate"),
       render: (text) => <>{dayjs(text).format("DD/MM/YYYY")}</>,
     },
     {
@@ -298,7 +298,7 @@ const Infor = () => {
                 })),
               };
               setRecordState(rec);
-              form.setFieldsValue({ ...rec, examDate: dayjs() });
+              form.setFieldsValue({ ...rec, examdate: dayjs(rec.examdate) });
               setModal(true);
             }}
             type="primary"
@@ -307,7 +307,10 @@ const Infor = () => {
           </Button>
           <Button
             onClick={() => {
-              showInvoiceConfirm({ examCode: record.code, date: dayjs().format("YYYY-MM-DD") });
+              showInvoiceConfirm({
+                examCode: record.code,
+                date: dayjs(record.examdate).format("YYYY-MM-DD"),
+              });
             }}
           >
             Xuất hóa đơn
@@ -421,7 +424,7 @@ const Infor = () => {
               </Form.Item>
 
               <Form.Item
-                name="examDate"
+                name="examdate"
                 label={`Ngày khám`}
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 18 }}
@@ -555,7 +558,8 @@ const Infor = () => {
                         return updateExam({
                           ...values,
                           code: recordState.code,
-                          examDate: values.examDate.format("YYYY-MM-DD"),
+                          examdate: values.examdate.format("YYYY-MM-DD"),
+                          examDate: values.examdate.format("YYYY-MM-DD"),
                         });
                       })
                       .then((value) => {
@@ -569,6 +573,7 @@ const Infor = () => {
                           message: "Sửa thất bại",
                           type: "error",
                         });
+                        console.log(e);
                       })
                       .finally(() => {
                         setAddLoading(false);
@@ -588,7 +593,8 @@ const Infor = () => {
                       .then((values) => {
                         return addExam({
                           ...values,
-                          examDate: values.examDate.format("YYYY-MM-DD"),
+                          examdate: values.examdate.format("YYYY-MM-DD"),
+                          examDate: values.examdate.format("YYYY-MM-DD"),
                         });
                       })
                       .then((value) => {
@@ -599,9 +605,10 @@ const Infor = () => {
                       })
                       .catch((e) => {
                         showNotification({
-                          message: "Thất bại",
+                          message: e?.message || "Thất bại",
                           type: "error",
                         });
+                        console.log(e);
                       })
                       .finally(() => {
                         setAddLoading(false);

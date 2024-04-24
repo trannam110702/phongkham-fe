@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import ServiceCardWrapper, { DesWrapper } from "./styled";
-import { Card, Button, Modal, Form, Input, InputNumber, message } from "antd";
+import { Card, Button, Modal, Form, Input, InputNumber, Flex } from "antd";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import { updateService, deleteService } from "../../api/service";
 import Building from "../../assets/imgs/Buildings.png";
@@ -51,18 +51,6 @@ const ServiceCard = ({ img, title, price, record, setallService }) => {
             <Input />
           </Form.Item>
           <Form.Item
-            name="code"
-            label="Mã gói khám"
-            rules={[
-              {
-                required: true,
-                message: "Cần nhập trường này",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
             name="price"
             label="Giá gói khám"
             rules={[
@@ -95,7 +83,7 @@ const ServiceCard = ({ img, title, price, record, setallService }) => {
             <Input.TextArea allowClear autoSize={{ minRows: 4, maxRows: 6 }} />
           </Form.Item>
           <Form.Item noStyle>
-            <div className="footer">
+            <Flex justify="end" gap="small">
               <Button key="back" onClick={() => setEditModal(false)}>
                 Hủy
               </Button>
@@ -118,7 +106,7 @@ const ServiceCard = ({ img, title, price, record, setallService }) => {
               >
                 Sửa
               </Button>
-            </div>
+            </Flex>
           </Form.Item>
         </Form>
       </Modal>
@@ -155,7 +143,10 @@ const ServiceCard = ({ img, title, price, record, setallService }) => {
             </DesWrapper>
           }
         ></Card.Meta>
-        <span className="price">Chi phí: {price} đồng</span>
+        <span className="price">
+          Chi phí:{" "}
+          {new Intl.NumberFormat("vi-US", { style: "currency", currency: "VND" }).format(price)}
+        </span>
       </Card>
     </ServiceCardWrapper>
   );

@@ -179,12 +179,6 @@ const Infor = () => {
       ...getColumnSearchProps("name"),
     },
     {
-      title: "Mã thuốc",
-      dataIndex: "code",
-      key: "code",
-      ...getColumnSearchProps("code"),
-    },
-    {
       title: "Nguồn gốc",
       dataIndex: "origin",
       key: "origin",
@@ -261,18 +255,6 @@ const Infor = () => {
               <Form.Item
                 name="name"
                 label={`Tên thuốc`}
-                rules={[
-                  {
-                    required: true,
-                    message: "Cần nhập trường này",
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="code"
-                label={`Mã thuốc`}
                 rules={[
                   {
                     required: true,

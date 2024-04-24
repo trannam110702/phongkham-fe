@@ -1,5 +1,25 @@
-import React, { useEffect, useState, useContext } from "react";
-import { DatePicker, Space, Flex, Select, Button } from "antd";
+import React, { useEffect, useState, useContext, useRef } from "react";
+import Highlighter from "react-highlight-words";
+import dayjs from "dayjs";
+import {
+  Row,
+  Col,
+  Table,
+  Form,
+  Input,
+  Button,
+  Flex,
+  Space,
+  Select,
+  DatePicker,
+  InputNumber,
+} from "antd";
+import {
+  ExclamationCircleFilled,
+  SearchOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import ReportWrapper from "./styled";
 import {
   ResponsiveContainer,
@@ -22,15 +42,158 @@ import { getAllMedicine } from "../../api/medicine";
 import { getAllService } from "../../api/service";
 import { getReport } from "../../api/report";
 import { Store } from "../../store/store";
-import dayjs from "dayjs";
+
 const { RangePicker } = DatePicker;
 const Reports = () => {
+  const searchInput = useRef(null);
   const { showNotification } = useContext(Store);
   const [data, setData] = useState([]);
   const [medicines, setMedicines] = useState(null);
   const [services, setServices] = useState(null);
   const [loading, setLoaing] = useState(true);
   const [searchParams, setSearchParams] = useState({});
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+      <div
+        style={{
+          padding: 8,
+        }}
+        onKeyDown={(e) => e.stopPropagation()}
+      >
+        <Input
+          ref={searchInput}
+          placeholder={`Tìm kiếm  ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{
+            marginBottom: 8,
+            display: "block",
+          }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Tìm
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({
+                closeDropdown: false,
+              });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Lọc
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              close();
+            }}
+          >
+            Đóng
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined
+        style={{
+          color: filtered ? "#1890ff" : undefined,
+        }}
+      />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{
+            backgroundColor: "#ffc069",
+            padding: 0,
+          }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ""}
+        />
+      ) : (
+        text
+      ),
+  });
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "stt",
+      key: "stt",
+      render: (text, record, index) => <>{index + 1}</>,
+    },
+    {
+      title: "Ngày khám ",
+      dataIndex: "date",
+      key: "date",
+      ...getColumnSearchProps("date"),
+      render: (text, record) => {
+        if (text) {
+          return <>{dayjs(text).format("DD/MM/YYYY")}</>;
+        } else {
+          return <>{dayjs(record.month).format("MM/YYYY")}</>;
+        }
+      },
+    },
+    {
+      title: "Doanh thu khám ",
+      dataIndex: "service_revenue",
+      key: "service_revenue",
+      ...getColumnSearchProps("service_revenue"),
+      render: (text) =>
+        new Intl.NumberFormat("vi-US", { style: "currency", currency: "VND" }).format(text),
+    },
+    {
+      title: "Doanh thu thuốc khám ",
+      dataIndex: "medicine_revenue",
+      key: "medicine_revenue",
+      ...getColumnSearchProps("medicine_revenue"),
+      render: (text) =>
+        new Intl.NumberFormat("vi-US", { style: "currency", currency: "VND" }).format(text),
+    },
+  ];
   useEffect(() => {
     const run = async () => {
       getReport(searchParams).then((res) => {
@@ -83,7 +246,7 @@ const Reports = () => {
               onClear={() => setSearchParams((prev) => ({ ...prev, serviceCode: null }))}
             ></Select>
           </Flex> */}
-          <Flex vertical>
+          {/* <Flex vertical>
             <p>Chọn loại thuốc</p>
             <Select
               allowClear
@@ -92,7 +255,7 @@ const Reports = () => {
               onSelect={(val) => setSearchParams((prev) => ({ ...prev, medicineCode: val }))}
               onClear={() => setSearchParams((prev) => ({ ...prev, medicineCode: null }))}
             ></Select>
-          </Flex>
+          </Flex> */}
         </Flex>
         <Flex vertical>
           <Button
@@ -122,56 +285,7 @@ const Reports = () => {
         </Flex>
       </Flex>
       <br />
-      <ResponsiveContainer width="100%" height="90%">
-        {searchParams ? (
-          <BarChart
-            width={500}
-            height={300}
-            data={data.map((item) => ({
-              ...item,
-              name: item.month || dayjs(item.date).format("DD/MM"),
-            }))}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar
-              name={`Doanh thu dịch vụ khám`}
-              dataKey="service_revenue"
-              fill="#8884d8"
-              activeBar={<Rectangle fill="pink" stroke="blue" />}
-            />
-            <Bar
-              name={`Doanh thu bán thuốc ${
-                medicines?.find((item) => item.code === searchParams.medicineCode)?.name || ""
-              }`}
-              dataKey="medicine_revenue"
-              fill="#82ca9d"
-              activeBar={<Rectangle fill="gold" stroke="purple" />}
-            />
-          </BarChart>
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginTop: "3rem",
-              fontSize: "30px",
-            }}
-          >
-            Vui lòng chọn lọc
-          </div>
-        )}
-      </ResponsiveContainer>
+      <Table columns={columns} dataSource={data} pagination={false} loading={loading}></Table>
     </ReportWrapper>
   );
 };

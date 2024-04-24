@@ -1,30 +1,34 @@
-import React, { useEffect, useState, useContext } from "react";
-import { DatePicker, Space, Flex, Select, Button } from "antd";
-import ReportWrapper from "./styled";
+import React, { useEffect, useState, useContext, useRef } from "react";
+import Highlighter from "react-highlight-words";
+import dayjs from "dayjs";
 import {
-  ResponsiveContainer,
-  BarChart,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Bar,
-  Rectangle,
-  LineChart,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-} from "recharts";
+  Row,
+  Col,
+  Table,
+  Form,
+  Input,
+  Button,
+  Flex,
+  Space,
+  Select,
+  DatePicker,
+  InputNumber,
+} from "antd";
+import {
+  ExclamationCircleFilled,
+  SearchOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import ReportWrapper from "./styled";
 import { getAllMedicine } from "../../api/medicine";
 import { getAllService } from "../../api/service";
 import { getServiceReport } from "../../api/report";
 import { Store } from "../../store/store";
-import dayjs from "dayjs";
+
 const { RangePicker } = DatePicker;
 const Reports = () => {
+  const searchInput = useRef(null);
   const { showNotification } = useContext(Store);
   const [data, setData] = useState([]);
   const [services, setServices] = useState(null);
@@ -33,6 +37,132 @@ const Reports = () => {
     fromDate: dayjs().format("YYYY-MM-DD"),
     toDate: dayjs().format("YYYY-MM-DD"),
   });
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+      <div
+        style={{
+          padding: 8,
+        }}
+        onKeyDown={(e) => e.stopPropagation()}
+      >
+        <Input
+          ref={searchInput}
+          placeholder={`Tìm kiếm  ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{
+            marginBottom: 8,
+            display: "block",
+          }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Tìm
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({
+                closeDropdown: false,
+              });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Lọc
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              close();
+            }}
+          >
+            Đóng
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined
+        style={{
+          color: filtered ? "#1890ff" : undefined,
+        }}
+      />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{
+            backgroundColor: "#ffc069",
+            padding: 0,
+          }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ""}
+        />
+      ) : (
+        text
+      ),
+  });
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "stt",
+      key: "stt",
+      render: (text, record, index) => <>{index + 1}</>,
+    },
+    {
+      title: "Ngày khám ",
+      dataIndex: "date",
+      key: "date",
+      ...getColumnSearchProps("date"),
+      render: (text) => <>{dayjs(text).format("DD/MM/YYYY")}</>,
+    },
+    {
+      title: "Số lượng khám ",
+      dataIndex: "quantity",
+      key: "quantity",
+      ...getColumnSearchProps("quantity"),
+    },
+  ];
   useEffect(() => {
     const run = async () => {
       getServiceReport(searchParams).then((res) => {
@@ -111,36 +241,7 @@ const Reports = () => {
         </Flex>
       </Flex>
       <br />
-      <ResponsiveContainer width="100%" height="90%">
-        <BarChart
-          width={500}
-          height={300}
-          data={data.map((item) => ({
-            ...item,
-            name: item.month || dayjs(item.examdate).format("DD/MM"),
-          }))}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar
-            name={`Số lượng khám ${
-              services?.find((item) => item.code === searchParams.serviceCode)?.name || ""
-            }`}
-            dataKey="quantity"
-            fill="#82ca9d"
-            activeBar={<Rectangle fill="gold" stroke="purple" />}
-          />
-        </BarChart>
-      </ResponsiveContainer>
+      <Table columns={columns} dataSource={data} pagination={false} loading={loading}></Table>
     </ReportWrapper>
   );
 };

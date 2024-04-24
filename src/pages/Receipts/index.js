@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import Highlighter from "react-highlight-words";
 import printJS from "print-js";
 import { Table, Input, Button, Space, Modal } from "antd";
@@ -11,11 +11,14 @@ import {
 import { getAllMedicine } from "../../api/medicine";
 import { getAllPeople } from "../../api/people";
 import { getAllService } from "../../api/service";
-import { getAllInvoice } from "../../api/invoice";
+import { getAllInvoice, deleteInvoice } from "../../api/invoice";
 import ReceiptsWrapper from "./styled";
 import logo from "../../assets/imgs/logo.svg";
 import dayjs from "dayjs";
+import { Store } from "../../store/store";
+
 const Receipts = () => {
+  const { showNotification } = useContext(Store);
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const [dataSourceRoot, setDataSourceRoot] = useState([]);
@@ -27,9 +30,10 @@ const Receipts = () => {
   const [record, setRecord] = useState(false);
   const [tableLoading, setTableLoading] = useState(true);
   const [modal, setModal] = useState(false);
-  const [sum, setSum] = useState();
   const [mediSum, setMediSum] = useState();
   const searchInput = useRef(null);
+  const { confirm } = Modal;
+
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
@@ -170,6 +174,23 @@ const Receipts = () => {
     };
     run();
   }, [modal, medico, medicine, patient, service]);
+  const showDeleteConfirm = (rec) => {
+    const onOk = async () => {
+      const res = await deleteInvoice(rec);
+      setDataSource(dataSource.filter((item) => item.code !== rec.code));
+      showNotification({ message: res.statusText, type: "info" });
+    };
+    const onCancel = () => {};
+    confirm({
+      title: "Chắc chắn muốn xóa bản ghi này?",
+      icon: <ExclamationCircleFilled />,
+      okText: "Có",
+      okType: "danger",
+      cancelText: "Không",
+      onOk,
+      onCancel,
+    });
+  };
   const columns = [
     {
       title: "STT",
@@ -180,20 +201,22 @@ const Receipts = () => {
     {
       title: "Nha sĩ",
       dataIndex: "medico_name",
-      key: "medico",
-      ...getColumnSearchProps("medico"),
+      key: "medico_name",
+      ...getColumnSearchProps("medico_name"),
     },
     {
       title: "Bệnh nhân",
       dataIndex: "patient_name",
-      key: "patient",
-      ...getColumnSearchProps("patient"),
+      key: "patient_name",
+      ...getColumnSearchProps("patient_name"),
     },
     {
       title: "Phí khám bệnh",
       dataIndex: "service_fee",
-      key: "patient",
-      ...getColumnSearchProps("patient"),
+      key: "service_fee",
+      ...getColumnSearchProps("service_fee"),
+      render: (text) =>
+        new Intl.NumberFormat("vi-US", { style: "currency", currency: "VND" }).format(text),
     },
     {
       title: "Ngày tạo ",
@@ -201,6 +224,24 @@ const Receipts = () => {
       key: "date",
       ...getColumnSearchProps("date"),
       render: (text) => <>{dayjs(text).format("DD/MM/YYYY")}</>,
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_, record) => (
+        <Space size="small">
+          <Button
+            onClick={(e) => {
+              showDeleteConfirm({ code: record.code });
+              e.stopPropagation();
+            }}
+            type="primary"
+            danger
+          >
+            Xóa
+          </Button>
+        </Space>
+      ),
     },
   ];
   const medicineColumn = [
@@ -231,7 +272,7 @@ const Receipts = () => {
       key: "total",
       render: (tex, record) => {
         let mul = record.price * record.quantity;
-        return <>{mul}</>;
+        return new Intl.NumberFormat("vi-US", { style: "currency", currency: "VND" }).format(mul);
       },
     },
   ];
@@ -295,7 +336,10 @@ const Receipts = () => {
             </div>
             <div>
               <b>Giá dịch vụ: </b>
-              {record?.service_fee} đồng
+              {new Intl.NumberFormat("vi-US", { style: "currency", currency: "VND" }).format(
+                record?.service_fee
+              )}{" "}
+              đồng
             </div>
           </div>
           <b
@@ -318,9 +362,19 @@ const Receipts = () => {
             }}
           ></Table>
           <div style={{ margin: "20px 0", textAlign: "right" }}>
-            <b style={{ display: "block" }}>Tổng tiền thuốc: {mediSum} đồng</b>
             <b style={{ display: "block" }}>
-              Tổng tiền thanh toán: {mediSum + record?.service_fee} đồng
+              Tổng tiền thuốc:{" "}
+              {new Intl.NumberFormat("vi-US", { style: "currency", currency: "VND" }).format(
+                mediSum
+              )}{" "}
+              đồng
+            </b>
+            <b style={{ display: "block" }}>
+              Tổng tiền thanh toán:{" "}
+              {new Intl.NumberFormat("vi-US", { style: "currency", currency: "VND" }).format(
+                mediSum + record?.service_fee
+              )}{" "}
+              đồng
             </b>
           </div>
           <div style={{ margin: "20px 0", textAlign: "right" }}>

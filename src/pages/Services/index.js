@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import ServicesWrapper, { FormWrapper } from "./styled";
 import ServiceCard from "../../components/ServiceCard";
 import img from "../../assets/imgs/examcard.png";
-import { Button, Col, Row, Modal, Form, Input, InputNumber, Spin } from "antd";
+import { Button, Col, Row, Modal, Form, Input, InputNumber, Spin, Flex } from "antd";
 import { getAllService, addService } from "../../api/service";
 import { Store } from "../../store/store";
 
@@ -86,8 +86,8 @@ const Services = () => {
             >
               <Input.TextArea allowClear autoSize={{ minRows: 4, maxRows: 6 }} />
             </Form.Item>
-            <Form.Item noStyle>
-              <div className="footer">
+            <Form.Item>
+              <Flex justify="end" gap="small">
                 <Button key="back" onClick={() => setAddModal(false)}>
                   Hủy
                 </Button>
@@ -121,7 +121,7 @@ const Services = () => {
                 >
                   Thêm
                 </Button>
-              </div>
+              </Flex>
             </Form.Item>
           </Form>
         </FormWrapper>
